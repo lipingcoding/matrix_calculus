@@ -1,0 +1,58 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 2.9 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{magnus99}{book}{}
+      \name{author}{2}{}{%
+        {{hash=9c82570d015c4a2918727b23c0d37bed}{%
+           family={Magnus},
+           familyi={M\bibinitperiod},
+           given={Jan\bibnamedelima R.},
+           giveni={J\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=a9d06dda94fd9c361123a5d531f50dd7}{%
+           family={Neudecker},
+           familyi={N\bibinitperiod},
+           given={Heinz},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {John Wiley}%
+      }
+      \strng{namehash}{7fb8fa203b719b36709486ce7edc576f}
+      \strng{fullhash}{7fb8fa203b719b36709486ce7edc576f}
+      \strng{bibnamehash}{7fb8fa203b719b36709486ce7edc576f}
+      \strng{authorbibnamehash}{7fb8fa203b719b36709486ce7edc576f}
+      \strng{authornamehash}{7fb8fa203b719b36709486ce7edc576f}
+      \strng{authorfullhash}{7fb8fa203b719b36709486ce7edc576f}
+      \field{sortinit}{M}
+      \field{sortinithash}{cfd219b90152c06204fab207bc6c7cab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This book provides a self-contained and unified treatment of matrix differential calculus, aimed at econometricians and statisticians. It can be used as a textbook for senior undergraduate or graduate courses on the subject, and will also be a valuable source for professional econometricians and statisticians who want to learn and apply these important techniques. The authors base their approach on differentials rather than derivatives, and they show that the use of differentials is elegant, easy and considerably more useful in applications. No specialist knowledge of matrix algebra or calculus is required, since the basics of matrix algebra are covered in the first three chapters with a thorough treatment of multivariable calculus provided in Chapters Four to Seven. Exercises are included in each chapter, and many examples which illustrate applications of the theory are considered in detail.}
+      \field{edition}{Second}
+      \field{isbn}{0471986321 9780471986324 047198633X 9780471986331}
+      \field{title}{Matrix Differential Calculus with Applications in Statistics and Econometrics}
+      \field{year}{1999}
+      \keyw{calculus economics linear.algebra matrix textbook}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

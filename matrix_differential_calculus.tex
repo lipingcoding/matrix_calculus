@@ -1,0 +1,398 @@
+\documentclass{ctexbook}
+\usepackage[backend=biber]{biblatex}
+\addbibresource{mybib.bib}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{mymacros}
+
+\usepackage{hyperref}%作为最后一个包来导入, 因为它重定义了很多命令
+\newtheorem{definition}{定义}
+\newtheorem{theorem}{定理}
+
+
+
+
+
+
+\begin{document}
+\title{矩阵求导极简教程}
+\author{王礼萍}
+\maketitle
+\tableofcontents
+\chapter{致谢}
+支撑笔者在繁忙的学业中抽空完成这个教程的动力永远来自我最亲爱的 Congcong, 因为, 首先是为你而写, 你永远是我取悦的第一个读者!
+
+
+To Congcong, with my full love!
+\chapter{记号}
+\begin{itemize}
+  \item $\mathbb R$ :实数集
+  \item $\mathbb R^n$: $n$维实向量构成的线性空间
+  \item $\mathbb R^{n\times q}$: $n\times q$矩阵构成的线性空间
+  \item $\phi : \mathbb R \rightarrow \mathbb R$的函数
+  \item $f : \mathbb R^n \rightarrow \mathbb R$的函数
+  \item $F : \mathbb R^{n\times q} \rightarrow \mathbb R^{m\times p}$的函数
+  \item $B(c;r)$其中$c\in \mathbb R^n$:以 $c$为中心, $r$为半径的开球
+\end{itemize}
+
+
+\chapter{绪论}
+首先界定下本教程标题中 "矩阵导数"的含意. 第一, 这里的矩阵, 不仅指二维的矩阵, 也包括向量(可以将长度为 $n$的列向量看成$1\times n$的矩阵). 第二, 关于矩阵导数, 一方面, 函数本身可以是一个矩阵(或者向量), 另一方面,函数的自变量可以是一个矩阵(或者向量).
+
+
+笔者刚开始接触机器学习与深度学习时, 在相关教材和论文中多次见到矩阵函数或者对矩阵变量求导的操作, 但是大多采用的是 ad-hoc 的方法(推过 BP神经网络的读者应该会有比较深的体会).而一元微积分中有一套成熟的求导技巧, 一旦熟练掌握则非常简单, 难道多元求导就没有一套成熟的体系吗?
+
+
+笔者查阅了很多相关书籍, 最终找到了一本专门讲解矩阵求导的书籍\cite{magnus99}, 不过这本书好几百页, 从一元微积分开始讲起, 介绍了非常丰富的矩阵论中的结论, 对于一般读者是一个较大的负担. 因此, 笔者致力于提供一个 minimum volume 的矩阵求导的入门教程, 以满足日常学习和科研的需求.
+
+\chapter{矩阵论知识补充}
+为了后面的推导, 需要在本科线性代数的基础上补充与矩阵相关的若干概念和性质.
+\section{基础结论}
+
+\begin{theorem}
+	 对于$n$-阶方阵 $A,B$有
+	 \begin{equation*}
+  \trace (A^TB) = \sum_{i,j}a_{ij}b_{ij}
+\end{equation*}
+  特殊地, 对于$B=A$, 有
+  \begin{equation*}
+  \trace (A^TA) = \sum_{i,j}a_{ij}^2 = \norm A_F^2
+\end{equation*}
+
+
+
+
+
+
+\end{theorem}
+
+
+\section{拉直操作与 Kronecker 乘积}
+\begin{definition}
+	对于$m\times n$的矩阵$A$,定义拉直操作 $\vecop A= (a_1^T, a_2^T,\dots, a_n^T)^T$, 其中$a_i$代表矩阵$A$的第$i$列.
+\end{definition}
+
+\begin{definition}
+	对于矩阵$A, B$(对于维度没有任何要求), 定义 Kronecker 乘积 
+	\begin{equation*}
+  A\otimes B = 
+  \begin{pmatrix}
+  	a_{ij}B
+  \end{pmatrix}
+\end{equation*}
+
+\end{definition}
+
+\chapter{矩阵导数定义}
+学习过一元微积分/高等数学的读者应该会记得, 连续不一定可导, 但可导一定连续, 而且引入导数之前, 我们事实上先引入的是微分的概念. 为了引入矩阵导数, 同样地, 我们需要先引入函数连续性和微分. 
+
+对于一般的函数, 自变量, 函数值都可以是标量, 向量和矩阵, 所以一共有 9 种情况, 为了简化讨论, 我们将考虑如下两种情况, 其他六种情况其实是这三种情况的特例.
+\begin{itemize}
+  \item $f : S \rightarrow \mathbb R^m$, 其中$S\subset \mathbb R^n$
+  \item $F : S\rightarrow \mathbb R^{m\times p}$,其中$S\subset \mathbb R^{n\times q}$
+\end{itemize}
+
+本章后面将针对这两种情况, 按照函数的连续性, 微分以及导数的顺序, 进行介绍.
+
+\section{连续性}
+\begin{definition}
+	对于函数 $\phi : S \rightarrow \mathbb R$, 其中 $S\subset \mathbb R^n $, 对于 $c \in S$.如果$\forall \epsilon > 0$, $\exists \delta >0$ 使得对于所有的 $c+u\in S$, 其中 $\|u\|< \delta$,都有 $|\phi(c+u) - \phi(c)| < \epsilon$, 则称 $\phi$在$c$处连续. 进一步地, 如果$\phi$在$S$中每一点都连续, 则称$\phi$ 在$S$上连续.
+\end{definition}
+
+\begin{definition}
+	对于函数 $f : S \rightarrow \mathbb R^m$, 其中 $S\subset \mathbb R^n $, 记
+	\begin{equation*}
+  f(x) = (f_1(x), \dots, f_m(x))'
+\end{equation*}
+所以函数 $f$其实定义了 $m$ 个实数值函数 $f_1, \dots, f_m$. 如果 $f_1, \dots, f_m$都在 $c\in S$上连续, 则称$f$在$c$处连续. 进一步地, 如果 $f$在$S$ 中每一点都连续, 则称 $f$在$S$上连续.
+\end{definition}
+
+\section{微分与导数}
+
+
+\begin{definition}\label{def:diff_phi}
+	对于函数 $\phi : S \rightarrow \mathbb R$, 其中 $S\subset \mathbb R^n $, 设 $c$ 是$S$的一个内点, $B(c,r)\subset S$, 如果存在$a(c)$使得对于任意的$c+u\in B(c;r)$有
+	\begin{equation*}
+  \phi(c+u) = \phi(c) + a(c)u + r_c(u)
+\end{equation*}
+ 而且
+ \begin{equation*}
+  \lim_{u\rightarrow 0} \frac{r_c(u)}{\|u\|} = 0
+\end{equation*}
+则称$\phi$在$c$处可微,
+记 $d\phi(c;u) = a(c)u$, 称为函数 $\phi$ 在$c$处的微分, 记$D\phi = a(c)$,称为函数 $\phi$ 在$c$处的导数.
+\end{definition}
+
+对于实数值函数 $\phi$, 实际中经常会用到它的梯度(gradient), 即
+
+\begin{equation*}
+  \nabla \phi(c) =  (\frac{\partial \phi}{\partial c_1}, \dots,\frac{\partial \phi}{\partial c_n})^T
+\end{equation*}
+可以证明 $\nabla \phi(c)= D\phi(c)^T=a(c)$.
+
+\begin{definition}\label{def:diff_f}
+
+	对于函数 $f : S \rightarrow \mathbb R^m$, 其中 $S\subset \mathbb R^n $, 设 $c$ 是$S$的一个内点, $B(c,r)\subset S$, 如果存在$A(c)$使得对于任意的$c+u\in B(c;r)$有
+	\begin{equation*}
+  f(c+u) = f(c) + A(c)u + r_c(u)
+\end{equation*}
+ 而且
+ \begin{equation*}
+  \lim_{u\rightarrow 0} \frac{r_c(u)}{\|u\|} = 0
+\end{equation*}
+则称$f$在$c$处可微,
+记 $df(c;u) = A(c)u$, 称为函数 $f$ 在$c$处的微分, 记$Df = a(c)$,称为函数 $f$ 在$c$处的导数.
+\end{definition}
+
+我们还会经常看到所谓的 Jacobian 矩阵, 即
+\begin{equation*}
+  \begin{pmatrix}
+  	\frac{\partial f_i}{\partial c_j}
+  \end{pmatrix}
+\end{equation*}
+可以证明:如果函数$f$在$c$处可微,则$Df$就是Jacobian 矩阵.
+
+
+对于更为一般的矩阵函数 $F : S\rightarrow \mathbb R^{m\times p}$,其中$S\subset \mathbb R^{n\times q}$, 为了定义微分, 我们需要将自变量和函数值同时进行拉直操作, 从而通过\ref{def:differential}完成定义.
+
+\begin{definition}\label{def:diff_F}
+	对于$F : S\rightarrow \mathbb R^{m\times p}$,其中$S\subset \mathbb R^{n\times q}$, 设 $C$ 是$S$的一个内点, $B(C,r)\subset S$, 如果存在$A(C)$使得对于任意的$C+U\in B(C;r)$有
+	\begin{equation*}
+  \vecop F(C+U) = \vecop F(C) + A(C)\vecop U +  R_C(U)
+\end{equation*}
+而且 $$\lim_{U\rightarrow 0}\frac{R_C(U)}{\|U\|}=0$$
+ 则称$F$在$C$处可微.
+设 $dF(C;U)\in \mathbb R^{m\times p}$, 则 根据$\vecop dF(C;U) = A(C)\vecop U$可以唯一确定出 $dF(C;U)$, 称为函数$F$在$C$处的微分,记$DF = A(C)$,称为函数 $F$ 在$C$处的导数.
+\end{definition}
+
+我们考虑一个特殊的  $F:S\rightarrow \mathbb R$,其中$S\subset \mathbb R^{n\times q}$, 它将矩阵映射到一个函数. 根据上面的定义, $F$的导数是一个长度为$nq$的行向量, 但是我们通常要求的是一个梯度矩阵
+\begin{equation*}
+  \nabla F(C) = 
+  \begin{pmatrix}
+  	\frac{\partial F}{\partial C_{ij}}
+  \end{pmatrix}
+\end{equation*}
+可以证明:
+\begin{equation*}
+  \vecop \nabla F(C) = DF(c)^T
+\end{equation*}
+
+事实上,对于一般的$F$, 也可以推导出$\frac{\partial F_{ij}}{\partial C_{kl}}$与$DF$的关系, 但是比较繁琐, 而且用得不多, 故略去.
+
+观察微分的定义, 我们可以发现几点
+\begin{itemize}
+  \item 微分可以是标量,向量或者矩阵, 但是其形状始终和函数值形状相同
+  \item 微分与选取的 $u$有关, 本身并不要求$u \rightarrow 0$
+\end{itemize}
+
+
+
+\section{微分的性质}
+引入微分的目的主要在于微分具有一系列非常统一和优美的性质, 这些性质有助于我们以一种非常统一的方式来求解函数导数(\ref{chap:calcu}中会有详细介绍), 现在我们就来介绍这些性质, 这些性质根据微分的定义很容易证明, 读者可以参考\cite{magnus99}的第八章.
+
+\subsection{实值函数}
+对于可微实值函数$u, v$和常数$\alpha$有:
+\begin{itemize}
+  \item $d\alpha = 0$
+  \item $d(\alpha u) = \alpha du$
+  \item $d(u+v) = du + dv$
+  \item $d(uv) = (du)v + udv$
+  \item $d(\frac{u}{v}) = \frac{(du)v - udv}{v^2}$
+\end{itemize}
+
+用一元可微实值函数 $f$复合有
+\begin{equation*}
+  df(u) = f'(u) du
+\end{equation*}
+因而有
+\begin{itemize}
+  \item $de^u = e^udu$
+  \item $d\log u = \frac{1}{u}du$
+\end{itemize}
+等结论.
+
+\subsection{矩阵值函数}
+对于向量/矩阵值函数 $U, V$, 常矩阵$A$,常数$\alpha$,有如下结论(运算能够进行的条件下)
+
+对于基本运算有:
+\begin{itemize}
+  \item $dA = 0$
+  \item $d(\alpha U) = \alpha dU$
+  \item $d(U+V) = dV + dV$
+  \item $d(UV) = (dU)V + UdV$
+  \item $d(U\otimes V)=dU\otimes V + U\otimes dV$
+  \item $d(U\odot V)=dU\otimes V + U\odot dV$
+\end{itemize}
+
+对于常见矩阵操作有:
+\begin{itemize}
+  \item $dU^T = (dU)^T$
+  \item $d \vecop U = \vecop dU$
+  \item $d \trace U = \trace dU$
+\end{itemize}
+
+用一元可微实值函数 $f$复合有 
+
+\chapter{具体实践}\label{chap:calcu}
+在实际使用中, 一般需要求解的是梯度或者 Jacobian 矩阵, 这时就有两种路线
+\begin{itemize}
+  \item 直接计算诸如 $\frac{\partial f_i}{\partial c_j}$这类逐元素导数
+  \item 利用\ref{def:diff_phi}, \ref{def:diff_f}, \ref{def:diff_F}中定义的微分求出相应的导数, 进而得到梯度或者 Jacobian 矩阵
+\end{itemize}
+
+第一种方法, 过程比较简单, 但是函数形式各异,尤其是当函数涉及到复杂的矩阵计算时, 很难算出$\frac{\partial f_i}{\partial c_j}$,即使计算成功, 最后也往往难以凑出一个紧凑的矩阵表达. 另外, 对于比较难以处理复合函数.
+
+下面针对不同函数类型, 通过具体例子来阐述
+第二种方法, 虽然过程稍显繁琐, 但是构成了一个成熟的框架(套路), 因而比较方便.
+
+本章接下来将根据不同函数类型, 通过具体例子来阐述如何求导.
+
+\section{向量映到实数}
+对于函数 $\phi : S \rightarrow \mathbb R$, 其中 $S\subset \mathbb R^n $, 我们通常希望得到
+\begin{equation*}
+  \nabla \phi(x) = (\frac{\partial \phi(x)}{\partial x_1},\dots, \frac{\partial \phi(x)}{\partial x_n})^T
+\end{equation*}
+
+\begin{example}
+$\phi(x) = a^Tx$, 其中$a, x\in \mathbb R^n$, 且$a$为常向量, 求$\nabla \phi(x)$.
+
+
+\begin{mulsol}
+	\begin{align*}
+  a^Tx = \sum_i a_ix_i,
+\end{align*}
+所以$\nabla \phi(x) = a$.
+\end{mulsol}
+\end{example}
+\begin{example}
+$\phi(x) = x^TAx$, 其中$ x\in \mathbb R^n$,$A$是$\mathbb R^{n\times n}$中的一个常矩阵,  求$\nabla \phi(X)$.
+\begin{mulsol}
+	\begin{align*}
+  x^TAx &= \sum_i\sum_j x_ia_{ij}x_j\\
+\end{align*}
+所以$\fpar{\phi(x)}{x_{i}} = \sum_j a_{ij}x_j+\sum_j x_ja_{ji}$, 因而$\nabla \phi(x) = (A+A^T)x$.
+\end{mulsol}
+
+\begin{mulsol}
+	先求微分, 
+	\begin{align*}
+  d(x^TAx) &= (dx)^TAx + x^TAdx\\
+  &=x^T A^T dx + x^TAdx\\
+  &= x^T(A+A^T)dx
+\end{align*}
+所以, $\phi(x) = (x^T(A+A^T))^T= (A+A^T)x$.
+\end{mulsol}
+特殊地,如果 $A=A^T$, 则$\nabla \phi(x) = 2Ax$.	
+\end{example}
+
+\begin{example}
+	求$\phi(x) = \norm x_2^2$的梯度.
+\end{example}
+
+\section{矩阵映到实数}
+对于函数 $\phi : S \rightarrow \mathbb R$, 其中 $S\subset \mathbb R^{n\times q} $, 我们通常希望得到
+\begin{equation*}
+  \nabla \phi(X) =
+  \begin{pmatrix}
+  	\frac{\partial \phi}{\partial x_{11}} \dots \frac{\partial \phi}{\partial x_{1q}}\\
+  	\dots \frac{\partial \phi}{\partial x_{ij}} \dots \\
+  	\frac{\partial \phi}{\partial x_{n1}} \dots \frac{\partial \phi}{\partial x_{nq}}
+  \end{pmatrix}_{n\times q}
+\end{equation*}
+
+
+\begin{example}
+$\phi(X) = a^TXa$, 其中$ X\in \mathbb R^{n\times n}$, 且$a$为常向量, 求$\nabla \phi(X)$.	
+\end{example}
+\begin{mulsol}
+\begin{align*}
+  a^TXa = 
+\end{align*}
+\end{mulsol}
+
+
+
+\begin{example}
+$\phi(X) = a^TX^{-1}a$, 其中$ X$是$\in \mathbb R^{n\times n}$中可逆矩阵, 且$a$为常向量, 求$\nabla \phi(X)$.	
+\end{example}
+
+\begin{example}
+	求 $\phi(X)=\det X$的梯度, 其中$\det X$表示可逆矩阵$X$的行列式.
+	\begin{mulsol}
+		对$X$按第$1$行展开得
+		\begin{equation*}
+  \det X = \sum_j c_{1j} X_{1j}
+\end{equation*}
+所以$\fpar{\phi (X)}{X_{1j}} = c_{1j}$, 同理有$\fpar{\phi (X)}{X_{ij}} = c_{ij}$, 因而有
+\begin{equation*}
+  \nabla \phi (X) = (X^{\#})^T  
+\end{equation*}
+如果$X$可逆, 则$X^\# =(\det X) X^{-1}$,  所以$\nabla \phi(X) = (\det X) (X^{-1})^T$
+	\end{mulsol}
+\end{example}
+
+\begin{example}
+	求 $\log\det X$的梯度, 其中$\det X$表示可逆矩阵$X$的行列式. 
+\end{example}
+\begin{solution}
+由前例知 	$\nabla \log\det X= X^{-T}$
+\end{solution}
+
+\begin{example}
+	求 $\trace X$的梯度
+	\begin{solution}
+		$\nabla \trace X = I $
+	\end{solution}
+\end{example}
+
+\begin{example}
+	求$\trace AA^T = \trace A^TA = \norm A_F^2 $的梯度.
+\end{example}
+
+
+\section{向量映到向量}
+对于函数 $f:S\rightarrow \mathbb R^m$, 其中$S\subset R^n$
+
+我们通常要求的是 Jacobian 矩阵 
+
+\begin{equation*}
+  \fpar{y}{x}=
+  \begin{pmatrix}
+  	\frac{\partial y_1}{\partial x_{1}} \dots \frac{\partial y_1}{\partial x_{n}}\\
+  	\dots \frac{\partial y_i}{\partial x_{j}} \dots \\
+  	\frac{\partial y_m}{\partial x_{1}} \dots \frac{\partial y_m}{\partial x_{n}}
+  \end{pmatrix}_{m\times n}
+\end{equation*}
+
+\begin{example}
+	机器学习中经常遇到线性层$y = Wx + w_0$, 求$\fpar{y}{x}$
+	\begin{solution}
+		sdf
+	\end{solution}
+
+\end{example}
+
+
+\section{实数映到矩阵}
+对于$F: S\rightarrow \mathbb R^{m\times p}$, 其中$S\subset \mathbb R$ 我们希望求解 $$\fpar{F}{x}= (\fpar{F_{ij}}{x})_{m\times p}.$$
+
+这种情况一般利用逐元素求导即可, 比较简单, 但是如果如果结合矩阵微分和矩阵的性质, 往往能得到更多有用的结论.
+\begin{example}
+	设$F(x): \mathbb R \rightarrow \mathbb R^{n\times n}$是一个矩阵函数, 且$F(x)$作为矩阵可逆,求 $\fpar{F^{-1}}{x}$.
+	\begin{mulsol}
+	由
+	\begin{align*}
+  \fpar{I}{x} &= \fpar{(FF^{-1})}{x} \\
+  	&= (\fpar Fx)F^{-1}+ F\fpar{F^{-1}}{x}\\
+  	&=0
+\end{align*}
+得$\fpar{F^{-1}}{x}=-F^{-1}\fpar Fx F^{-1}$.
+	\end{mulsol}
+\end{example}
+
+\chapter{更多的例子}
+\printbibliography
+\end{document}

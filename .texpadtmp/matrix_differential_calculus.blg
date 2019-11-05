@@ -1,0 +1,17 @@
+[0] Config.pm:302> INFO - This is Biber 2.11
+[0] Config.pm:305> INFO - Logfile is '/Users/king/Documents/blogs/.texpadtmp/matrix_differential_calculus.blg'
+[73] biber-darwin:313> INFO - === Mon Oct 21, 2019, 22:36:54
+[126] Biber.pm:371> INFO - Reading '/Users/king/Documents/blogs/.texpadtmp/matrix_differential_calculus.bcf'
+[247] Biber.pm:857> INFO - Found 1 citekeys in bib section 0
+[267] Biber.pm:3976> INFO - Processing section 0
+[300] Biber.pm:4136> INFO - Looking for bibtex format file '/Users/king/Documents/blogs/mybib.bib' for section 0
+[302] bibtex.pm:1500> INFO - LaTeX decoding ...
+[315] bibtex.pm:1316> INFO - Found BibTeX data source '/Users/king/Documents/blogs/mybib.bib'
+[375] Utils.pm:193> WARN - ISBN '0471986321 9780471986324 047198633X 9780471986331' in entry 'magnus99' is invalid - run biber with '--validate_datamodel' for details.
+[395] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[395] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[395] Biber.pm:3804> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'en-US'
+[396] Biber.pm:3810> INFO - No sort tailoring available for locale 'en-US'
+[402] bbl.pm:617> INFO - Writing '/Users/king/Documents/blogs/.texpadtmp/matrix_differential_calculus.bbl' with encoding 'UTF-8'
+[403] bbl.pm:720> INFO - Output to /Users/king/Documents/blogs/.texpadtmp/matrix_differential_calculus.bbl
+[404] Biber.pm:110> INFO - WARNINGS: 1
